@@ -34,11 +34,11 @@ const AuthProvider = (props: any) => {
         getProfile();
     }, []);
 
-    if(currentUser != null && window.location.toString().includes("login")){
+    if(currentUser !== null && window.location.toString().includes("login")){
         history.push("/")
     }
 
-    if (currentUser == null && !window.location.toString().includes("login")) {
+    if (currentUser === null && !window.location.toString().includes("login")) {
         if (window.location.search.length === 0) {
             history.push("/login")
         } else {

@@ -51,19 +51,22 @@ export const IconEditor: React.FC<{
         </Typography>
         <Box mt={1} ml={2}>
             <Grid container alignItems="center">
-                <Grid item justifyContent="center">
+                <Grid item>
                     <Grid container alignItems="center">
                         <Avatar style={{width: 100, height: 100}} src={props.baseIcon}/>
-
                         {
-                            props.icon != null ? <img style={{width: 30, height: 30, marginLeft: 10, marginRight: 10}}
-                                                      src="https://cdn0.iconfinder.com/data/icons/feather/96/591276-arrow-right-512.png"/> :
-                                <div/>
+                            props.icon != null ? <img style={{
+                                    width: 30,
+                                    height: 30,
+                                    marginLeft: 10,
+                                    marginRight: 10}} src="https://cdn0.iconfinder.com/data/icons/feather/96/591276-arrow-right-512.png"/> : <div/>
                         }
                         {
-                            props.icon != null ?
-                                <Avatar style={{marginLeft: 10, marginRight: 10, width: 100, height: 100}}
-                                        src={props.icon}/> : <div/>
+                            props.icon != null ? <Avatar style={{
+                                marginLeft: 10,
+                                marginRight: 10,
+                                width: 100,
+                                height: 100}} src={props.icon}/> : <div/>
                         }
                     </Grid>
                 </Grid>

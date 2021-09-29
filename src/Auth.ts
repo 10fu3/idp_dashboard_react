@@ -1,6 +1,6 @@
 import {Failure, Result, Success} from "./Result";
 import {API_HOST} from "./config";
-import {JsonLinkedService, JsonService} from "./Service";
+import {JsonAdminService, JsonLinkedService, JsonService} from "./Service";
 
 export type LoginResult = JsonSuccessLoginResult | JsonFailedLoginResult
 
@@ -65,27 +65,6 @@ export class Auth {
             return new Success<JsonLinkedService[], Error>(linkedService);
         } else {
             return new Failure<JsonLinkedService[], Error>(new Error("エラーが発生しました"));
-        }
-    }
-
-    public static async getOAuth2Clients(): Promise<Result<JsonService[], Error>> {
-        let token_header = Auth.getAuthHeader();
-
-        if (token_header.type === 'failure') {
-            return new Failure<JsonService[], Error>(new Error("ログインしていません"));
-        }
-
-        let linkedJSONResponse = await fetch(API_HOST + '/api/v1/service/', {
-            method: `get`,
-            headers: token_header.value
-        });
-
-        if (linkedJSONResponse.status === 200) {
-            let linkedJSON: Promise<JsonService[]> = linkedJSONResponse.json();
-            let linkedService = await linkedJSON;
-            return new Success<JsonService[], Error>(linkedService);
-        } else {
-            return new Failure<JsonService[], Error>(new Error("エラーが発生しました"));
         }
     }
 
@@ -181,6 +160,87 @@ export class Auth {
 
     public static save(session: string) {
         window.localStorage.setItem("authorization", session);
+    }
+}
+
+export class OAuth{
+    public static async getClients(): Promise<Result<JsonService[], Error>> {
+        let token_header = Auth.getAuthHeader();
+
+        if (token_header.type === 'failure') {
+            return new Failure<JsonService[], Error>(new Error("ログインしていません"));
+        }
+
+        let linkedJSONResponse = await fetch(API_HOST + '/api/v1/service/', {
+            method: `get`,
+            headers: token_header.value
+        });
+
+        if (linkedJSONResponse.status === 200) {
+            let linkedJSON: Promise<JsonService[]> = linkedJSONResponse.json();
+            let linkedService = await linkedJSON;
+            return new Success<JsonService[], Error>(linkedService);
+        } else {
+            return new Failure<JsonService[], Error>(new Error("エラーが発生しました"));
+        }
+    }
+
+    public static async getClient(id:string): Promise<Result<JsonAdminService, Error>>{
+        let token_header = Auth.getAuthHeader();
+
+        if (token_header.type === 'failure') {
+            return new Failure<JsonService, Error>(new Error("ログインしていません"));
+        }
+
+        const url = new URL(API_HOST + '/api/v1/service');
+
+        url.searchParams.set('id',id);
+
+        let clientSONResponse = await fetch(url.toString(), {
+            method: `get`,
+            headers: token_header.value
+        });
+
+        if (clientSONResponse.status === 200) {
+            let linkedJSON: Promise<JsonAdminService> = clientSONResponse.json();
+            let linkedService = await linkedJSON;
+            return new Success<JsonAdminService, Error>(linkedService);
+        } else {
+            return new Failure<JsonAdminService, Error>(new Error("エラーが発生しました"));
+        }
+    }
+
+    public static async createClient(json:any):Promise<boolean>{
+        let token_header = Auth.getAuthHeader();
+
+        if (token_header.type === 'failure') {
+            return false;
+        }
+
+        let result = await fetch(API_HOST + '/api/v1/service/', {
+            method: `post`,
+            headers: token_header.value,
+            body: JSON.stringify(json)
+        });
+
+        return result.status === 200;
+
+    }
+
+    public static async getService(id:string):Promise<Result<JsonService,Error>>{
+        const result = await fetch(API_HOST+'/api/v1/service/', {
+            method: 'get',
+            headers: new Headers({
+                'client_id': id
+            })
+        })
+
+        if(result.status !== 200){
+            return new Failure(new Error("エラーが発生しました"));
+        }
+
+        const service:JsonService = await result.json()
+        return new Success(service)
     }
 }
 

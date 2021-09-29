@@ -1,36 +1,71 @@
 import {Bar} from "../component/Bar";
-import {Box, Button, Card, CardHeader, Container, Grid, Modal, Typography} from "@material-ui/core";
-import {RouteComponentProps} from "react-router";
-import React, {useState} from "react";
-import {TestServiceJSON} from "../sample/SampleJSON";
+import {Box, Button, Card, CardActions, CardHeader, Container, Grid, Modal, Typography} from "@material-ui/core";
+import {RouteComponentProps, useHistory} from "react-router";
+import React, {useEffect, useState} from "react";
 import {IconEditor} from "../component/IconEditor";
 import {TextEditor} from "../component/TextEditor";
 import {ServicePermission} from "../component/ServicePermission";
 import {EmptyCardItem} from "../component/EmptyCardItem";
+import {JsonAdminService} from "../Service";
+import {OAuth} from "../Auth";
 
 type PageProps = {} & RouteComponentProps<{ id: string }>;
 
 export const ServiceDetail: React.FC<PageProps> = (props) => {
 
-    const list = TestServiceJSON;
+    //const list = TestServiceJSON;
+    // const target = list.filter(i => i.service_id === props.match.params.id)[0];
 
-    const target = list.filter(i => i.service_id === props.match.params.id)[0];
+    const history = useHistory()
 
+    const [target,setTarget] = useState<JsonAdminService>({
+        admin_id: '',
+        client_id:'',
+        service_secret: '',
+        service_name: '',
+        service_id: '',
+        redirect_uri: '',
+        icon_url: '',
+        description: '',
+        permissions: []
+    });
+
+    const load = ()=>{
+        const getClient = async()=>{
+            const result = await OAuth.getClient(props.match.params.id)
+            if(result.type === 'success'){
+                setTarget(result.value);
+                setOpenErrorModal('');
+            }else{
+                setOpenErrorModal('エラーが発生しました');
+            }
+        }
+        getClient()
+    }
+
+    useEffect(()=>{
+        load()
+    },[])
 
     const [icon, setIcon] = useState<string | null>(null);
     const [uploadedIcon,setUploadedIcon] = useState<string | null>(null);
+    const [secret,setSecret] = useState<string|null>(null);
+    const [displaySecret,setDisplaySecret] = useState(false);
     const [name, setName] = useState<string | null>("");
     const [redirect, setRedirect] = useState<string | null>("");
     const [description, setDescription] = useState<string | null>("");
+
     const [openID, setOpenID] = useState<boolean>(target.permissions.includes("read_uuid"));
     const [profile, setProfile] = useState<boolean>(target.permissions.includes("read_profile"));
     const [mail, setMail] = useState<boolean>(target.permissions.includes("read_mail"));
 
     const [permissionChanged, setPermissionChanged] = useState(false);
 
-    const [permissionState, setPermissionState] = useState([false, false, false]);
+    const [permissionState, setPermissionState] = useState([openID, profile, mail]);
 
     const [openDeleteModal,setOpenDeleteModal] = useState(false);
+
+    const [errorModal,setOpenErrorModal] = useState('');
 
     const onChangedSwitch = (id: number) => {
         const state = permissionState;
@@ -44,6 +79,10 @@ export const ServiceDetail: React.FC<PageProps> = (props) => {
         }
         setPermissionState(state);
         setPermissionChanged(false);
+    }
+
+    const occurredError = ()=>{
+        history.push('/service')
     }
 
     const permissions = [{
@@ -109,6 +148,10 @@ export const ServiceDetail: React.FC<PageProps> = (props) => {
         console.log(json);
     }
 
+    const onUpdateSecret = ()=>{
+
+    }
+
     const closeDeleteModal = ()=>{
         setOpenDeleteModal(false)
     }
@@ -126,6 +169,13 @@ export const ServiceDetail: React.FC<PageProps> = (props) => {
                 <CardHeader
                     title={target.service_name + "の詳細"}
                     style={{textAlign: "center"}}/>
+                <EmptyCardItem title={"クライアントID"}>
+                    <Grid container style={{marginLeft:10,marginTop:10}}>
+                        <div style={{marginBottom:20}}>
+                            {target.client_id}
+                        </div>
+                    </Grid>
+                </EmptyCardItem>
                 <IconEditor
                     title={"アイコン"}
                     baseIcon={target.icon_url}
@@ -144,6 +194,37 @@ export const ServiceDetail: React.FC<PageProps> = (props) => {
                     before={target.redirect_uri}
                     after={redirect}
                     setBody={setRedirect}/>
+
+                <EmptyCardItem title={"クライアントシークレット"}>
+                    <Grid container style={{marginLeft:10,marginTop:10}}>
+                        <div style={{marginBottom:20}}>
+                            {displaySecret ? target.service_secret : ""}
+                        </div>
+                        <Button style={{
+                            marginLeft: "auto",
+                            marginRight: 10,
+                            color: "#0068ad",
+                            borderColor: "#0068ad"
+                        }} variant="outlined" onClick={() => {
+                            setDisplaySecret(!displaySecret)
+                        }}>
+                            {displaySecret ? "非表示" : "表示"}
+                        </Button>
+                    </Grid>
+                    {
+                        displaySecret ? <Grid container style={{marginLeft:10,marginTop:10}}>
+                            <Button style={{
+                                marginLeft: "auto",
+                                marginRight: 10,
+                                color: "#5cad00",
+                                borderColor: "#5cad00"
+                            }} variant="outlined" onClick={onUpdateSecret}>
+                                {displaySecret ? "別のキーに更新する" : ""}
+                            </Button>
+                        </Grid> : <div/>
+                    }
+                </EmptyCardItem>
+
                 <TextEditor
                     id={"description"}
                     title={"説明"}
@@ -192,6 +273,28 @@ export const ServiceDetail: React.FC<PageProps> = (props) => {
                                         </Button>
                                     </Grid>
                                 </Grid>
+                            </Card>
+                        </Grid>
+                    </Modal>
+                    <Modal
+                        open={errorModal.length !== 0}
+                        onClose={occurredError}
+                    >
+                        <Grid container justifyContent={"center"} style={{marginTop:100}}>
+                            <Card style={{width:400,padding:30}}>
+                                <Typography variant="h6" component="h2">
+                                    {errorModal}
+                                </Typography>
+                                <CardActions>
+                                    <Button onClick={occurredError} style={{
+                                        color: "#ff0000",
+                                        marginLeft:"auto",
+                                        borderColor: "#ff0000",
+                                        width: "90px"
+                                    }} variant="outlined">
+                                        閉じる
+                                    </Button>
+                                </CardActions>
                             </Card>
                         </Grid>
                     </Modal>

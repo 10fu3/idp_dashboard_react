@@ -8,23 +8,10 @@ import {LinkService} from "./page/LinkService";
 import {ServiceList} from "./page/ServiceList";
 import {ServiceDetail} from "./page/ServiceDetail";
 import {ServiceCreate} from "./page/ServiceCreate";
-import {Auth, Profile} from "./Auth";
 import {AuthProvider} from "./context/AuthContext";
 
 
 const App = () => {
-
-    useEffect(() => {
-        const checkLoginStatus = async () => {
-            const maybeProfile = await Auth.getProfile();
-            if (maybeProfile.type === 'success') {
-                setUser(maybeProfile.value);
-            }
-        };
-    }, [])
-
-    const [user, setUser] = useState<Profile | null>(null);
-
     return (
         <div style={{height: "100vh"}}>
             <BrowserRouter>

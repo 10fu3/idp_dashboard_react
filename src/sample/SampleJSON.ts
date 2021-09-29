@@ -37,6 +37,7 @@ export const TestLinkedServiceJSON: JsonLinkedService[] = [
 
 export const TestServiceJSON: JsonAdminService[] = [{
     admin_id: '9dced394-af76-4493-a4d5-00109fe64a64',
+    client_id: '',
     service_secret: 'f0d59804-e7cc-4f72-95ed-42619f466cb1cb2c58e5-f442-4010-a091-6d69f6ea0d9b',
     service_name: 'サービス1',
     service_id: '715ba7f9-da79-4685-bae3-9d1fe828a98d',
@@ -48,6 +49,7 @@ export const TestServiceJSON: JsonAdminService[] = [{
         'read_profile'
     ]
 }, {
+    client_id: '',
     admin_id: 'bb497007-0df6-4d39-864e-9329b355f596',
     service_secret: 'f0d59804-e7cc-4f72-95ed-42619f466cb1cb2c58e5-f442-4010-a091-6d69f6ea0d9b',
     service_name: 'サービス2',
@@ -60,6 +62,7 @@ export const TestServiceJSON: JsonAdminService[] = [{
     ]
 }, {
     admin_id: '93dab8d4-372f-4963-be94-f77cc8398e64',
+    client_id: '',
     service_secret: 'f0d59804-e7cc-4f72-95ed-42619f466cb1cb2c58e5-f442-4010-a091-6d69f6ea0d9b',
     service_name: 'サービス3',
     service_id: 'de36e4c5-056d-42cf-a63c-66ea3f3e50a3',

@@ -1,8 +1,10 @@
 import React, {useState} from "react";
-import {Box, Button, Card, CardHeader, Grid} from "@material-ui/core";
+import {Box, Button, Card, CardActions, CardHeader, Grid, Modal, Typography} from "@material-ui/core";
 import {ServiceIconCreate} from "../component/ServiceIconCreate";
 import {ServiceTextCreate} from "../component/ServiceTextCreate";
 import {ServicePermission} from "../component/ServicePermission";
+import {Auth, OAuth} from "../Auth";
+import {useHistory} from "react-router";
 
 export const ServiceCreateCard = () => {
     const [icon, setIcon] = useState<string | null>(null);
@@ -13,6 +15,10 @@ export const ServiceCreateCard = () => {
     const [openID, setOpenID] = useState<boolean>(false);
     const [profile, setProfile] = useState<boolean>(false);
     const [mail, setMail] = useState<boolean>(false);
+
+    const [resultModal,setOpenResultModal] = useState('');
+
+    const history = useHistory();
 
     const permissions = [
         {
@@ -49,13 +55,19 @@ export const ServiceCreateCard = () => {
         return "";
     }
 
-    const createHandle = () => {
+    const occurredError = ()=>{
+        history.push('/service')
+    }
+
+    const createHandle = async () => {
         const message = createFilter();
-        if (message.length !== 0) {
+        if (message.length !== 0 || uploadedIconURL == null) {
             alert(message);
             return;
         }
-        const iconUrl = "";
+
+        const iconUrl = uploadedIconURL;
+
         const permissions: string[] = [];
 
         if (openID) {
@@ -76,10 +88,36 @@ export const ServiceCreateCard = () => {
             'permissions': permissions
         }
 
-        console.log(json);
+        const send = async ()=>{
+            const result = await OAuth.createClient(json)
+            setOpenResultModal(result ? '成功しました' : 'エラーが発生しました')
+        }
+        send()
     }
 
     return <div>
+        <Modal
+            open={resultModal.length !== 0}
+            onClose={occurredError}
+        >
+            <Grid container justifyContent={"center"} style={{marginTop:100}}>
+                <Card style={{width:400,padding:30}}>
+                    <Typography variant="h6" component="h2">
+                        {resultModal}
+                    </Typography>
+                    <CardActions>
+                        <Button onClick={occurredError} style={{
+                            color: "#ff0000",
+                            marginLeft:"auto",
+                            borderColor: "#ff0000",
+                            width: "90px"
+                        }} variant="outlined">
+                            閉じる
+                        </Button>
+                    </CardActions>
+                </Card>
+            </Grid>
+        </Modal>
         <Card style={{width: 450, padding: 20}} variant="outlined">
 
             <CardHeader style={{textAlign: "center"}} title="新規OAuth2クライアント作成"/>

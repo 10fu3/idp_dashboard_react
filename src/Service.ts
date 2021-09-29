@@ -20,6 +20,7 @@ export type JsonAdminServiceList = {
 }
 
 export type JsonAdminService = {
+    client_id:string
     admin_id: string
     service_name: string
     service_secret: string
